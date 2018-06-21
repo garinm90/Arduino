@@ -22,7 +22,9 @@
 #define LED           9 // Moteinos have LEDs on D9
 #define FLASH_SS      8 // and FLASH SS on D8
 #endif
-
+int ledState = LOW;
+unsigned long previousMillis = 0;
+unsigned long interval = 500;
 
 
 #ifdef ENABLE_ATC
@@ -40,6 +42,8 @@ void setup() {
   radio.setHighPower(); //must include this only for RFM69HW/HCW!
 #endif
   radio.encrypt(ENCRYPTKEY);
+pinMode(LED, OUTPUT);
+
 
   char buff[50];
   sprintf(buff, "\nTransmitting at %d Mhz...", radio.getFrequency() / 1000000);
@@ -49,11 +53,10 @@ void setup() {
 }
 void Blink(byte PIN, int DELAY_MS)
 {
-  for (int i = 0; i < 10; i++) {
-    pinMode(PIN, OUTPUT);
-    digitalWrite(PIN, HIGH);
-    delay(DELAY_MS);
+  for (int i = 0; i < 35; i++) {
     digitalWrite(PIN, LOW);
+    delay(DELAY_MS);
+    digitalWrite(PIN, HIGH);
     delay(DELAY_MS);
   }
 }
@@ -62,15 +65,23 @@ void sendData() {
   if (radio.receiveDone()) {
     for (byte i = 0; i < radio.DATALEN; i++) {
       Serial.print((char)radio.DATA[i]);
-      Blink(LED, 3);
     }
+    Blink(LED, 20);
     Serial.println("");
   }
 }
 void loop() {
   sendData();
-  //Blink(LED, 80);
-
+  unsigned long currentMillis = millis();
+  if (currentMillis - previousMillis > interval) {
+    previousMillis = currentMillis;
+    if (ledState == LOW)
+      ledState = HIGH;
+    else
+      ledState = LOW;
+    digitalWrite(LED, ledState);
+  }
 }
+
 
 
