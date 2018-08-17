@@ -32,8 +32,8 @@
 //*********************************************************************************************
 //************ IMPORTANT SETTINGS - YOU MUST CHANGE/CONFIGURE TO FIT YOUR HARDWARE ************
 //*********************************************************************************************
-#define NODEID        1    //must be unique for each node on same network (range up to 254, 255 is used for broadcast)
-#define NETWORKID     102  //the same on all nodes that talk to each other (range up to 255)
+#define NODEID        2    //must be unique for each node on same network (range up to 254, 255 is used for broadcast)
+#define NETWORKID     105  //the same on all nodes that talk to each other (range up to 255)
 #define GATEWAYID     2
 //Match frequency to the hardware version of the radio on your Moteino (uncomment one):
 #define FREQUENCY     RF69_915MHZ
@@ -121,13 +121,22 @@ void recvWithEndMarker() {
         }
     }
 }
+void recieveData() {
+  if (radio.receiveDone()) {
+    for (byte i = 0; i < radio.DATALEN; i++) {
+      Serial.print((char)radio.DATA[i]);
+    }
+    Blink(LED, 20);
+    Serial.println("");
+  }
+}
 
 
 void loop() {
   recvWithEndMarker();
-  //Blink(LED, 80);
+  recieveData();
+  Blink(LED, 80);
   }
-
 
 
 
